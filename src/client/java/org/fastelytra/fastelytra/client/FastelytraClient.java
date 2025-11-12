@@ -2,6 +2,7 @@ package org.fastelytra.fastelytra.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
@@ -11,26 +12,22 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 public class FastelytraClient implements ClientModInitializer {
 
     public boolean jumpKeyPreviouslyPressed = false; // Track the state of the jump key
-    public static final Path CONFIG_PATH = new File("config/fastelytra.json").toPath();
-    public static final Gson GSON = new Gson();
-    private static final KeyBinding.Category FAST_ELYTRA_CATEGORY = KeyBinding.Category.create(Identifier.of("fastelytra", "main"));
-    public static JsonObject config;
     public KeyBinding boostKey;
+    public KeyBinding continuousBoostKey;
+    public boolean isContinuousBoost = false;
+    public ArrayList<KeyBinding> rotate = new ArrayList<>(4);
+    private static final KeyBinding.Category FAST_ELYTRA_CATEGORY = KeyBinding.Category.create(Identifier.of("fastelytra", "main"));
 
     @Override
     public void onInitializeClient() {
-        loadConfig();
+        ConfigManager.loadConfig();
 
         // Register custom keybind
         boostKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -40,23 +37,89 @@ public class FastelytraClient implements ClientModInitializer {
                 FAST_ELYTRA_CATEGORY
         ));
 
+        continuousBoostKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.fastelytra.continuousBoost",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UNKNOWN,
+                "category.fastelytra"
+        ));
+
+        rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.fastelytra.rotate.yaw_l",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_LEFT,
+                "category.fastelytra"
+        )));
+        rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.fastelytra.rotate.yaw_r",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_RIGHT,
+                "category.fastelytra"
+        )));
+        rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.fastelytra.rotate.pitch_u",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_UP,
+                "category.fastelytra"
+        )));
+        rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.fastelytra.rotate.pitch_d",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_DOWN,
+                "category.fastelytra"
+        )));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player != null) {
+                PlayerEntity player = client.player;
+                var yaw = player.getYaw();
+                var pitch = player.getPitch();
+                if (rotate.get(0).isPressed()) player.setYaw(yaw-0.1f);
+                if (rotate.get(1).isPressed()) player.setYaw(yaw+0.1f);
+                if (rotate.get(2).isPressed()) player.setPitch(pitch-0.1f);
+                if (rotate.get(3).isPressed()) player.setPitch(pitch+0.1f);
+            }
+        });
+
+        // Reset continuous boost on disconnect
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            isContinuousBoost = false;
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player != null) {
+                PlayerEntity player = client.player;
+
+                // Check if mod functions are allowed on servers
+                if (!isServerAllowed(client)) {
+                    return; // Disable mod functions on servers if not allowed
+                }
+                if (!player.isGliding()) isContinuousBoost = false;
+                // Check if continuous boost key is pressed
+                if (continuousBoostKey.wasPressed()) {
+                    if (!player.isGliding()) {client.player.sendMessage(Text.literal("not gliding"), false); return;}
+                    isContinuousBoost = !isContinuousBoost;
+                }
+            }
+        });
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null) {
                 PlayerEntity player = client.player;
                 MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
                 // Check if mod functions are allowed on servers
-                if (!config.get("allowOnServers").getAsBoolean() && client.getCurrentServerEntry() != null) {
+                if (!isServerAllowed(client)) {
                     return; // Disable mod functions on servers if not allowed
                 }
 
                 // Fast Elytra functionality
-                if (config.get("enableFastElytra").getAsBoolean()) {
-                    boolean useWKey = config.get("useWKeyForBoost").getAsBoolean();
+                if (ConfigManager.getOrSetDefault("enableFastElytra", ConfigDefaults.enableFastElytra, Boolean.class)) {
+                    boolean useWKey = ConfigManager.getOrSetDefault("useWKeyForBoost", ConfigDefaults.useWKeyForBoost, Boolean.class);
                     boolean isBoostKeyPressed = boostKey.isPressed();
 
-                    if (player.isGliding() && (useWKey && minecraftClient.options.forwardKey.isPressed() || isBoostKeyPressed)) {
-                        double speedBoost = config.get("speedBoostMultiplier").getAsDouble();
+                    if (player.isGliding() && (useWKey && minecraftClient.options.forwardKey.isPressed() || isBoostKeyPressed || isContinuousBoost)) {
+                        double speedBoost = ConfigManager.getOrSetDefault("speedBoostMultiplier", ConfigDefaults.speedBoostMultiplier, Double.class);
                         player.addVelocity(
                                 player.getRotationVector().x * speedBoost,
                                 player.getRotationVector().y * speedBoost,
@@ -66,7 +129,7 @@ public class FastelytraClient implements ClientModInitializer {
                 }
 
                 // Jump key stops gliding functionality
-                if (!config.get("disableJumpKeyStopsGliding").getAsBoolean()) {
+                if (!ConfigManager.getOrSetDefault("disableJumpKeyStopsGliding", ConfigDefaults.disableJumpKeyStopsGliding, Boolean.class)) {
                     boolean jumpKeyPressed = minecraftClient.options.jumpKey.isPressed();
 
                     if (player.isGliding() && jumpKeyPressed && !jumpKeyPreviouslyPressed) {
@@ -79,37 +142,38 @@ public class FastelytraClient implements ClientModInitializer {
         });
     }
 
-    private void loadConfig() {
-        if (Files.exists(CONFIG_PATH)) {
-            try {
-                String content = new String(Files.readAllBytes(CONFIG_PATH));
-                config = GSON.fromJson(content, JsonObject.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-                createDefaultConfig();
-            }
-        } else {
-            createDefaultConfig();
+    // Check if mod functions are allowed on the current server
+    private boolean isServerAllowed(MinecraftClient client) {
+        if (client.getCurrentServerEntry() == null) {
+            return true; // Always allow in singleplayer
         }
-    }
 
-    private void createDefaultConfig() {
-        config = new JsonObject();
-        config.addProperty("enableFastElytra", true);
-        config.addProperty("disableJumpKeyStopsGliding", false);
-        config.addProperty("allowOnServers", false);
-        config.addProperty("speedBoostMultiplier", 0.05); // Default speed boost multiplier
-        config.addProperty("useWKeyForBoost", true); // Allow W key to boost by default
+        String serverAddress = client.getCurrentServerEntry().address;
+        String serverMode = ConfigManager.getOrSetDefault("serverMode", ConfigDefaults.serverMode, String.class);
 
-        saveConfig();
-    }
-
-    public static void saveConfig() {
-        try {
-            Files.createDirectories(CONFIG_PATH.getParent());
-            Files.write(CONFIG_PATH, GSON.toJson(config).getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+        switch (serverMode) {
+            case "unrestricted":
+                return true; // Allow on all servers
+            case "whitelist":
+                // Only allow if server is in whitelist
+                JsonArray whitelist = ConfigManager.getOrSetDefault("serverWhitelist", ConfigDefaults.getDefaultWhitelist(), JsonArray.class);
+                for (int i = 0; i < whitelist.size(); i++) {
+                    if (whitelist.get(i).getAsString().equalsIgnoreCase(serverAddress)) {
+                        return true;
+                    }
+                }
+                return false;
+            case "blacklist":
+                // Allow unless server is in blacklist
+                JsonArray blacklist = ConfigManager.getOrSetDefault("serverBlacklist", ConfigDefaults.getDefaultBlacklist(), JsonArray.class);
+                for (int i = 0; i < blacklist.size(); i++) {
+                    if (blacklist.get(i).getAsString().equalsIgnoreCase(serverAddress)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false; // Default to disabled if mode is unknown
         }
     }
 }
