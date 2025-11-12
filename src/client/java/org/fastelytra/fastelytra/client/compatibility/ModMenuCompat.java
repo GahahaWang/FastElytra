@@ -1,15 +1,18 @@
 package org.fastelytra.fastelytra.client.compatibility;
 
+import com.google.gson.JsonArray;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import org.fastelytra.fastelytra.client.FastelytraClient;
-import net.minecraft.client.MinecraftClient;
+import org.fastelytra.fastelytra.client.config.ConfigDefaults;
+import org.fastelytra.fastelytra.client.config.ConfigManager;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ModMenuCompat implements ModMenuApi {
@@ -18,64 +21,126 @@ public class ModMenuCompat implements ModMenuApi {
         return parent -> {
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(parent)
-                    .setTitle(Text.literal("Fast Elytra Settings"));
+                    .setTitle(Text.translatable("config.fastelytra.title"));
 
-            ConfigCategory general = builder.getOrCreateCategory(Text.literal("General Settings"));
+            ConfigCategory general = builder.getOrCreateCategory(Text.translatable("config.fastelytra.category.general"));
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
             // "Enable Fast Elytra" toggle
             general.addEntry(entryBuilder.startBooleanToggle(
-                            Text.literal("Enable Fast Elytra"),
-                            FastelytraClient.config.get("enableFastElytra").getAsBoolean())
-                    .setDefaultValue(true)
-                    .setTooltip(Text.literal("Enable or disable the mod."))
-                    .setSaveConsumer(newValue -> FastelytraClient.config.addProperty("enableFastElytra", newValue))
+                            Text.translatable("config.fastelytra.enableFastElytra"),
+                            ConfigManager.getOrSetDefault("enableFastElytra", ConfigDefaults.enableFastElytra, Boolean.class))
+                    .setDefaultValue(ConfigDefaults.enableFastElytra)
+                    .setTooltip(Text.translatable("config.fastelytra.enableFastElytra.tooltip"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("enableFastElytra", newValue))
                     .build()
             );
 
             // "Disable Jump Key Stops Gliding" toggle
             general.addEntry(entryBuilder.startBooleanToggle(
-                            Text.literal("Disable Jump Key Stops Gliding"),
-                            FastelytraClient.config.get("disableJumpKeyStopsGliding").getAsBoolean())
-                    .setDefaultValue(false)
-                    .setTooltip(Text.literal("Prevent jump key from stopping gliding."))
-                    .setSaveConsumer(newValue -> FastelytraClient.config.addProperty("disableJumpKeyStopsGliding", newValue))
+                            Text.translatable("config.fastelytra.disableJumpKeyStopsGliding"),
+                            ConfigManager.getOrSetDefault("disableJumpKeyStopsGliding", ConfigDefaults.disableJumpKeyStopsGliding, Boolean.class))
+                    .setDefaultValue(ConfigDefaults.disableJumpKeyStopsGliding)
+                    .setTooltip(Text.translatable("config.fastelytra.disableJumpKeyStopsGliding.tooltip"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("disableJumpKeyStopsGliding", newValue))
                     .build()
             );
 
             // "Allow On Servers" toggle
             general.addEntry(entryBuilder.startBooleanToggle(
-                            Text.literal("Allow On Servers"),
-                            FastelytraClient.config.get("allowOnServers").getAsBoolean())
-                    .setDefaultValue(false)
-                    .setTooltip(Text.literal("Allows use on multiplayer servers."))
-                    .setSaveConsumer(newValue -> FastelytraClient.config.addProperty("allowOnServers", newValue))
+                            Text.translatable("config.fastelytra.allowOnServers"),
+                            ConfigManager.getOrSetDefault("allowOnServers", ConfigDefaults.allowOnServers, Boolean.class))
+                    .setDefaultValue(ConfigDefaults.allowOnServers)
+                    .setTooltip(Text.translatable("config.fastelytra.allowOnServers.tooltip"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("allowOnServers", newValue))
                     .build()
             );
 
             // "Speed Boost Multiplier" slider
             general.addEntry(entryBuilder.startFloatField(
-                            Text.literal("Speed Boost Multiplier"),
-                            (float) FastelytraClient.config.get("speedBoostMultiplier").getAsDouble())
-                    .setDefaultValue(0.05f)
+                            Text.translatable("config.fastelytra.speedBoostMultiplier"),
+                            ConfigManager.getOrSetDefault("speedBoostMultiplier", ConfigDefaults.speedBoostMultiplier, Double.class).floatValue())
+                    .setDefaultValue((float) ConfigDefaults.speedBoostMultiplier)
                     .setMin(0.01f)
                     .setMax(1.0f)
-                    .setTooltip(Text.literal("Change how fast your Elytra boosting is."))
-                    .setSaveConsumer(newValue -> FastelytraClient.config.addProperty("speedBoostMultiplier", newValue))
+                    .setTooltip(Text.translatable("config.fastelytra.speedBoostMultiplier.tooltip"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("speedBoostMultiplier", newValue))
                     .build()
             );
 
             // "Use W Key For Boost" toggle
             general.addEntry(entryBuilder.startBooleanToggle(
-                            Text.literal("Use W Key For Boost"),
-                            FastelytraClient.config.get("useWKeyForBoost").getAsBoolean())
-                    .setDefaultValue(true)
-                    .setTooltip(Text.literal("Use the W key for boosting."))
-                    .setSaveConsumer(newValue -> FastelytraClient.config.addProperty("useWKeyForBoost", newValue))
+                            Text.translatable("config.fastelytra.useWKeyForBoost"),
+                            ConfigManager.getOrSetDefault("useWKeyForBoost", ConfigDefaults.useWKeyForBoost, Boolean.class))
+                    .setDefaultValue(ConfigDefaults.useWKeyForBoost)
+                    .setTooltip(Text.translatable("config.fastelytra.useWKeyForBoost.tooltip"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("useWKeyForBoost", newValue))
                     .build()
             );
 
-            builder.setSavingRunnable(FastelytraClient::saveConfig); // Save config when screen closes
+            // Server settings category
+            ConfigCategory serverSettings = builder.getOrCreateCategory(Text.translatable("config.fastelytra.category.server"));
+
+            // "Server Mode" dropdown
+            serverSettings.addEntry(entryBuilder.startStringDropdownMenu(
+                            Text.translatable("config.fastelytra.serverMode"),
+                            ConfigManager.getOrSetDefault("serverMode", ConfigDefaults.serverMode, String.class))
+                    .setDefaultValue(ConfigDefaults.serverMode)
+                    .setTooltip(Text.translatable("config.fastelytra.serverMode.tooltip"))
+                    .setSelections(List.of("unrestricted", "whitelist", "blacklist"))
+                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("serverMode", newValue))
+                    .build()
+            );
+
+            // "Server Whitelist" string list
+            List<String> whitelist = new ArrayList<>();
+            JsonArray whitelistArray = ConfigManager.getOrSetDefault("serverWhitelist", ConfigDefaults.getDefaultWhitelist(), JsonArray.class);
+            if (whitelistArray != null) {
+                for (int i = 0; i < whitelistArray.size(); i++) {
+                    whitelist.add(whitelistArray.get(i).getAsString());
+                }
+            }
+
+            serverSettings.addEntry(entryBuilder.startStrList(
+                            Text.translatable("config.fastelytra.serverWhitelist"),
+                            whitelist)
+                    .setDefaultValue(new ArrayList<>())
+                    .setTooltip(Text.translatable("config.fastelytra.serverWhitelist.tooltip"))
+                    .setSaveConsumer(newList -> {
+                        JsonArray newArray = new JsonArray();
+                        for (String server : newList) {
+                            newArray.add(server);
+                        }
+                        ConfigManager.config.add("serverWhitelist", newArray);
+                    })
+                    .build()
+            );
+
+            // "Server Blacklist" string list
+            List<String> blacklist = new ArrayList<>();
+            JsonArray blacklistArray = ConfigManager.getOrSetDefault("serverBlacklist", ConfigDefaults.getDefaultBlacklist(), JsonArray.class);
+            if (blacklistArray != null) {
+                for (int i = 0; i < blacklistArray.size(); i++) {
+                    blacklist.add(blacklistArray.get(i).getAsString());
+                }
+            }
+
+            serverSettings.addEntry(entryBuilder.startStrList(
+                            Text.translatable("config.fastelytra.serverBlacklist"),
+                            blacklist)
+                    .setDefaultValue(new ArrayList<>())
+                    .setTooltip(Text.translatable("config.fastelytra.serverBlacklist.tooltip"))
+                    .setSaveConsumer(newList -> {
+                        JsonArray newArray = new JsonArray();
+                        for (String server : newList) {
+                            newArray.add(server);
+                        }
+                        ConfigManager.config.add("serverBlacklist", newArray);
+                    })
+                    .build()
+            );
+
+            builder.setSavingRunnable(ConfigManager::saveConfig); // Save config when screen closes
 
             Screen screen = builder.build();
             return screen;

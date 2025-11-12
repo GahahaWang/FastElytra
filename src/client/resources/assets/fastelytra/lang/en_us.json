@@ -1,4 +1,34 @@
 {
   "key.fastelytra.boost": "Elytra Boost",
-  "category.fastelytra": "Fast Elytra"
+  "key.fastelytra.continuousBoost": "Continuous Elytra Boost",
+  "key.fastelytra.rotate.yaw_l": "Rotate Left (Yaw)",
+  "key.fastelytra.rotate.yaw_r": "Rotate Right (Yaw)",
+  "key.fastelytra.rotate.pitch_u": "Rotate Up (Pitch)",
+  "key.fastelytra.rotate.pitch_d": "Rotate Down (Pitch)",
+  "category.fastelytra": "Fast Elytra",
+  
+  "config.fastelytra.title": "Fast Elytra Settings",
+  "config.fastelytra.category.general": "General Settings",
+  "config.fastelytra.category.server": "Server Settings",
+  
+  "config.fastelytra.enableFastElytra": "Enable Fast Elytra",
+  "config.fastelytra.enableFastElytra.tooltip": "Enable or disable the mod.",
+  "config.fastelytra.disableJumpKeyStopsGliding": "Disable Jump Key Stops Gliding",
+  "config.fastelytra.disableJumpKeyStopsGliding.tooltip": "Prevent jump key from stopping gliding.",
+  "config.fastelytra.allowOnServers": "Allow On Servers",
+  "config.fastelytra.allowOnServers.tooltip": "Allows use on multiplayer servers.",
+  "config.fastelytra.speedBoostMultiplier": "Speed Boost Multiplier",
+  "config.fastelytra.speedBoostMultiplier.tooltip": "Change how fast your Elytra boosting is.",
+  "config.fastelytra.useWKeyForBoost": "Use W Key For Boost",
+  "config.fastelytra.useWKeyForBoost.tooltip": "Use the W key for boosting.",
+  
+  "config.fastelytra.serverMode": "Server Mode",
+  "config.fastelytra.serverMode.tooltip": "Choose how the mod works on servers:\nUnrestricted: Allow on all servers\nWhitelist: Only allow on whitelisted servers\nBlacklist: Allow on all except blacklisted servers",
+  "config.fastelytra.serverMode.unrestricted": "Unrestricted",
+  "config.fastelytra.serverMode.whitelist": "Whitelist",
+  "config.fastelytra.serverMode.blacklist": "Blacklist",
+  "config.fastelytra.serverWhitelist": "Server Whitelist",
+  "config.fastelytra.serverWhitelist.tooltip": "List of servers where the mod is allowed (whitelist mode only).\nEnter server addresses like: example.server.com",
+  "config.fastelytra.serverBlacklist": "Server Blacklist",
+  "config.fastelytra.serverBlacklist.tooltip": "List of servers where the mod is disabled (blacklist mode only).\nEnter server addresses like: banned.server.com"
 }

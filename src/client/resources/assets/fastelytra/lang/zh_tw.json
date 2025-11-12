@@ -1,0 +1,34 @@
+{
+  "key.fastelytra.boost": "鞘翅加速",
+  "key.fastelytra.continuousBoost": "鞘翅持續加速",
+  "key.fastelytra.rotate.yaw_l": "向左旋轉（偏航）",
+  "key.fastelytra.rotate.yaw_r": "向右旋轉（偏航）",
+  "key.fastelytra.rotate.pitch_u": "向上旋轉（俯仰）",
+  "key.fastelytra.rotate.pitch_d": "向下旋轉（俯仰）",
+  "category.fastelytra": "快速鞘翅",
+  
+  "config.fastelytra.title": "快速鞘翅設定",
+  "config.fastelytra.category.general": "一般設定",
+  "config.fastelytra.category.server": "伺服器設定",
+  
+  "config.fastelytra.enableFastElytra": "啟用快速鞘翅",
+  "config.fastelytra.enableFastElytra.tooltip": "啟用或停用此模組。",
+  "config.fastelytra.disableJumpKeyStopsGliding": "停用跳躍鍵停止滑翔",
+  "config.fastelytra.disableJumpKeyStopsGliding.tooltip": "防止跳躍鍵停止滑翔。",
+  "config.fastelytra.allowOnServers": "允許在伺服器上使用",
+  "config.fastelytra.allowOnServers.tooltip": "允許在多人遊戲伺服器上使用。",
+  "config.fastelytra.speedBoostMultiplier": "速度加成倍率",
+  "config.fastelytra.speedBoostMultiplier.tooltip": "調整鞘翅加速的速度。",
+  "config.fastelytra.useWKeyForBoost": "使用 W 鍵加速",
+  "config.fastelytra.useWKeyForBoost.tooltip": "使用 W 鍵進行加速。",
+  
+  "config.fastelytra.serverMode": "伺服器模式",
+  "config.fastelytra.serverMode.tooltip": "選擇模組在伺服器上的運作方式：\n無規則：允許在所有伺服器上使用\n白名單模式：僅允許在白名單中的伺服器上使用\n黑名單模式：除了黑名單中的伺服器外都允許使用",
+  "config.fastelytra.serverMode.unrestricted": "無規則",
+  "config.fastelytra.serverMode.whitelist": "白名單模式",
+  "config.fastelytra.serverMode.blacklist": "黑名單模式",
+  "config.fastelytra.serverWhitelist": "伺服器白名單",
+  "config.fastelytra.serverWhitelist.tooltip": "允許使用模組的伺服器列表（僅限白名單模式）。\n輸入伺服器地址，例如：example.server.com",
+  "config.fastelytra.serverBlacklist": "伺服器黑名單",
+  "config.fastelytra.serverBlacklist.tooltip": "禁止使用模組的伺服器列表（僅限黑名單模式）。\n輸入伺服器地址，例如：banned.server.com"
+}
