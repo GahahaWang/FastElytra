@@ -33,7 +33,6 @@ public class ConfigManager {
         config = new JsonObject();
         config.addProperty("enableFastElytra", ConfigDefaults.enableFastElytra);
         config.addProperty("disableJumpKeyStopsGliding", ConfigDefaults.disableJumpKeyStopsGliding);
-        config.addProperty("allowOnServers", ConfigDefaults.allowOnServers);
         config.addProperty("speedBoostMultiplier", ConfigDefaults.speedBoostMultiplier);
         config.addProperty("useWKeyForBoost", ConfigDefaults.useWKeyForBoost);
         config.addProperty("serverMode", ConfigDefaults.serverMode);
