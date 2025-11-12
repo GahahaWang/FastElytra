@@ -5,7 +5,7 @@
   "key.fastelytra.rotate.yaw_r": "向右旋轉（偏航）",
   "key.fastelytra.rotate.pitch_u": "向上旋轉（俯仰）",
   "key.fastelytra.rotate.pitch_d": "向下旋轉（俯仰）",
-  "category.fastelytra": "快速鞘翅",
+  "key.category.fastelytra.main": "快速鞘翅",
   
   "config.fastelytra.title": "快速鞘翅設定",
   "config.fastelytra.category.general": "一般設定",

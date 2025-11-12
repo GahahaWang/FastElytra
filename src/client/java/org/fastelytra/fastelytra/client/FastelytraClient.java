@@ -8,8 +8,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.fastelytra.fastelytra.client.config.ConfigDefaults;
+import org.fastelytra.fastelytra.client.config.ConfigManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -41,32 +43,32 @@ public class FastelytraClient implements ClientModInitializer {
                 "key.fastelytra.continuousBoost",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "category.fastelytra"
+                FAST_ELYTRA_CATEGORY
         ));
 
         rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.fastelytra.rotate.yaw_l",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_LEFT,
-                "category.fastelytra"
+                FAST_ELYTRA_CATEGORY
         )));
         rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.fastelytra.rotate.yaw_r",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT,
-                "category.fastelytra"
+                FAST_ELYTRA_CATEGORY
         )));
         rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.fastelytra.rotate.pitch_u",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_UP,
-                "category.fastelytra"
+                FAST_ELYTRA_CATEGORY
         )));
         rotate.add(KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.fastelytra.rotate.pitch_d",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_DOWN,
-                "category.fastelytra"
+                FAST_ELYTRA_CATEGORY
         )));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

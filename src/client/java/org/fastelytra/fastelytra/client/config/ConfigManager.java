@@ -93,16 +93,12 @@ public class ConfigManager {
     }
 
     private static void setConfigValue(String key, Object value) {
-        if (value instanceof String) {
-            config.addProperty(key, (String) value);
-        } else if (value instanceof Number) {
-            config.addProperty(key, (Number) value);
-        } else if (value instanceof Boolean) {
-            config.addProperty(key, (Boolean) value);
-        } else if (value instanceof JsonArray) {
-            config.add(key, (JsonArray) value);
-        } else {
-            config.add(key, GSON.toJsonTree(value));
+        switch (value) {
+            case String s -> config.addProperty(key, s);
+            case Number number -> config.addProperty(key, number);
+            case Boolean b -> config.addProperty(key, b);
+            case JsonArray jsonElements -> config.add(key, jsonElements);
+            case null, default -> config.add(key, GSON.toJsonTree(value));
         }
     }
 }
