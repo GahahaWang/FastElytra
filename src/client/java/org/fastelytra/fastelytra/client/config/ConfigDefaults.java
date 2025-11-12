@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 public class ConfigDefaults {
     public static final boolean enableFastElytra = true;
     public static final boolean disableJumpKeyStopsGliding = false;
-    public static final boolean allowOnServers = true;
     public static final double speedBoostMultiplier = 0.05;
     public static final boolean useWKeyForBoost = false;
     public static final String serverMode = "unrestricted";

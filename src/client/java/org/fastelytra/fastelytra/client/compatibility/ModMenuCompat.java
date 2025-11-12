@@ -46,16 +46,6 @@ public class ModMenuCompat implements ModMenuApi {
                     .build()
             );
 
-            // "Allow On Servers" toggle
-            general.addEntry(entryBuilder.startBooleanToggle(
-                            Text.translatable("config.fastelytra.allowOnServers"),
-                            ConfigManager.getOrSetDefault("allowOnServers", ConfigDefaults.allowOnServers, Boolean.class))
-                    .setDefaultValue(ConfigDefaults.allowOnServers)
-                    .setTooltip(Text.translatable("config.fastelytra.allowOnServers.tooltip"))
-                    .setSaveConsumer(newValue -> ConfigManager.config.addProperty("allowOnServers", newValue))
-                    .build()
-            );
-
             // "Speed Boost Multiplier" slider
             general.addEntry(entryBuilder.startFloatField(
                             Text.translatable("config.fastelytra.speedBoostMultiplier"),
